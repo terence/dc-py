@@ -34,8 +34,8 @@ fi
 echo Your selection is : $SELECTION.
 echo Your parameter is : $PARAM2.
 
-IMAGE=mynginx
-CONTAINER=mynginx6
+IMAGE=mypy
+CONTAINER=mypyc1
 
 case "$SELECTION" in
 # Note variable is quoted.
