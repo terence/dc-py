@@ -4,19 +4,19 @@
 Custom Python image
 
 ## Table of Contents
-- [Dockerpy Base](#dockerpy-history) 
+- [dc-py Base](#dc-py-base) 
   - Dockerpy Features
-  - [Dockerpy Usage](#dockerpy-usage)
+  - [Dockerpy Usage](#dc-py-usage)
   - [External References](#external-references)
 
-## Dockerpy Usage
+## dc-py Usage
 - Use run.sh for tasks
 - Build Dockerfile
 - Run image
 - Kill container
 
 
-## Dockerpy History
+## dc-py History
 - Starting from Python3 image
 - Add content files
 
