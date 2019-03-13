@@ -14,7 +14,7 @@ Custom Python image
 - Build Dockerfile
 - Run image
 - Kill container
-
+- view docker logs for python output
 
 ## dc-py History
 - Starting from Python3 image

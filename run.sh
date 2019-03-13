@@ -1,112 +1,158 @@
 #!/bin/bash
-#================================================================
+source ./_vars.sh
+# ================================================================
 # Command-line Assistant - run.sh
-# - Executes various R scripts
-#================================================================
+# ================================================================
 
 
 echo =============================================================
-echo Hi $USER@$HOSTNAME. 
-echo What do you want to do?
+echo run.sh -a [action] -b [label] -c [container]
 echo -------------------------------------------------------------
-echo 01: Docker: Build
-echo 02: Docker: Run Container
-echo 03: Docker: Stop Container 
-echo 04: Docker: STDIN attach
-echo 05: Shell
-echo 06: Docker: View Logs
-echo 07: Docker: Compose 
-echo ----------------------------------------------
-echo qq: Exit [Quit]
-echo Enter [Selection] to continue
+echo -a build : Docker: Build
+echo -a start : Docker: Run Container
+echo -a stop : Docker: Stop Container
+echo -a attach : Docker: Attach STDIN
+echo -a shell : Docker: Get a shell interface
+echo -a remove : Docker: Kill Remove a Containers
+echo -a killall : Docker: Kill all Containers
+echo -a killalli : Docker: Delete all Images
+echo -a logs : Docker: View Logs 
 echo =============================================================
-# Command line selection
-if [ -n "$1" ]; then
-  SELECTION=$1
-else
-  read  -n 2 SELECTION
-fi
-if [ -n "$2" ]; then
-  PARAM2=$2
-else
-  read  -n  PARAM2
-fi
-echo Your selection is : $SELECTION.
-echo Your parameter is : $PARAM2.
 
-IMAGE=mypy
-CONTAINER=mypyc1
+#Defaults
+#ACTION="up"
+LABEL="latest"
+CONTAINER=mydcpyc
+IMAGE=mydcpy
+TARGET=prod
+SCRIPT=dev.yml
 
-case "$SELECTION" in
-# Note variable is quoted.
+while getopts "a:b:c:t:s:" opt; do
+  case "${opt}" in 
+    "a" )
+      ACTION="${OPTARG}"
+      echo "Action:" $ACTION
+      ;;
+    "b" )
+      LABEL="${OPTARG}"
+      echo "Label:" $LABEL
+      ;;
 
-  "01" )
-  echo ===========================================================
-  echo Docker Build
-  echo ===========================================================
-  docker build -t $IMAGE .
-  ;;
+    "c" )
+      CONTAINER="${OPTARG}"
+      echo "Container:" $CONTAINER
+      ;;
 
+    "t" )
+      TARGET="${OPTARG}"
+      echo "Target:" $TARGET
+      ;;
+    "s" )
+      SCRIPT="${OPTARG}"
+      echo "Script:" $SCRIPT
+      ;;
+  esac
+done
 
-  "02" )
-  echo ===========================================================
-  echo Docker Run
-  echo ===========================================================
-  docker run --name $CONTAINER -p 80:80 -d $IMAGE
-  ;;
-
-
-  "03" )
-  echo ===========================================================
-  echo Docker Stop
-  echo ===========================================================
-  docker container stop $CONTAINER
-  ;;
+export LABEL="{$LABEL}"
+# export DATA_DIR="${HOME}/ga/${LABEL}
 
 
-  "04" )
-  echo ===========================================================
-  echo Docker STDIN attach
-  echo ===========================================================
-  docker run attach
-  #docker $CONTAINER attach
-  ;;
+case "$ACTION" in
+  "build" )
+    echo ===========================================================
+    echo Docker Build
+    echo ===========================================================
+    docker build -t $IMAGE .
+    ;;
+
+  "start" )
+    echo ===========================================================
+    echo Docker Run
+    echo ===========================================================
+#    docker run --name $CONTAINER -p 8888:8888 -d $IMAGE
+
+    docker run -d \
+    --name $CONTAINER \
+    -p 8888:8888 \
+    -ti \
+    -d \
+    $IMAGE
+    ;;
+
+  "stop" )
+    echo ===========================================================
+    echo Docker Stop
+    echo ===========================================================
+    docker container stop $CONTAINER
+    ;;
+
+  "attach" )
+    echo ===========================================================
+    echo Docker STDIN attach
+    echo ===========================================================
+    docker run attach
+    #docker $CONTAINER attach
+    ;;
+
+  "shell" )
+    echo ===========================================================
+    echo Docker Shell
+    echo ===========================================================
+    docker run attach
+    #docker -ti $IMAGE --name $CONTAINER  /bin/bash
+    ;;
+
+  "remove" )
+    echo ===========================================================
+    echo Docker Remove Containers
+    echo ===========================================================
+    docker kill $CONTAINER
+    docker rm -f $CONTAINER
+#    docker stop $(docker ps -aq)
+    ;;
 
 
-  "05" )
-  echo ===========================================================
-  echo Docker Shell
-  echo ===========================================================
-  docker run attach
-  #docker -ti $IMAGE --name $CONTAINER  /bin/bash
-  ;;
+  "killall" )
+    echo ===========================================================
+    echo Docker Remove All Containers
+    echo ===========================================================
+    docker stop $(docker ps -aq)
+    ;;
 
-  "06" )
-  echo ===========================================================
-  echo Docker Logs
-  echo ===========================================================
-  docker logs $CONTAINER
-  ;;
+  "killalli" )
+    echo ===========================================================
+    echo Docker Delete All Images
+    echo ===========================================================
+    docker rmi $(docker images -a -q)
+    ;;
 
-  "07" )
-  echo ===========================================================
-  echo Docker Compose
-  echo ===========================================================
-  docker-compose -f dev.yml up -d
-  ;;
 
-  "qq" )
-  echo Quit
-  exit 0
-  ;;
+  "logs" )
+    echo ===========================================================
+    echo Docker Logs
+    echo ===========================================================
+    docker logs -f $CONTAINER
+    ;;
 
-   * )
-   # Default option.
-   # Empty input (hitting RETURN) fits here, too.
-   echo
-   echo "Not a recognized option."
-  ;;
 
+  "compose" )
+    echo ===========================================================
+    echo Docker Compose
+    echo ===========================================================
+    docker-compose -f $SCRIPT
+    ;;
+
+
+  * )
+    # Default option.
+    # Empty input (hitting RETURN) fits here, too.
+    echo
+    echo "Please use a recognized option."
+    ;;
 esac
+
+
+
 
 
